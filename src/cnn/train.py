@@ -40,12 +40,12 @@ class ModelTrainer:
             batch_size=batch_size
         )
         
+        self.class_names = train_ds.class_names
+        self.num_classes = len(self.class_names)
+
         train_ds = train_ds.map(lambda x, y: (x / 255.0, y))
         val_ds = val_ds.map(lambda x, y: (x / 255.0, y))
         test_ds = test_ds.map(lambda x, y: (x / 255.0, y))
-        
-        self.num_classes = len(train_ds.class_names)
-        self.class_names = train_ds.class_names
         
         return train_ds, val_ds, test_ds
     
