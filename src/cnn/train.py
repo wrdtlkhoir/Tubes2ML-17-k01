@@ -93,14 +93,14 @@ class ModelTrainer:
         
         num_conv_layers_variations = [2, 3, 4]
         filters_variations = [
-            (32, 64, 128),
-            (64, 128, 256),
-            (16, 32, 64)
+            (32, 64, 128, 256),
+            (64, 128, 256, 512),
+            (16, 32, 64, 128)
         ]
         kernel_sizes_variations = [
-            (3, 3, 3),
-            (5, 5, 5),
-            (3, 5, 3)
+            (3, 3, 3, 3),
+            (5, 5, 5, 5),
+            (3, 5, 3, 5)
         ]
         pooling_types = ['max', 'avg']
         
