@@ -1,4 +1,16 @@
-data
+# Large data & model files
+data/features/
+*.npy
+*.h5
+*.pb
+saved_model/
+
+# Weights (add back specific small files with git add -f if needed)
+weights/
+
+# Dataset raw files
+data/
+
 __pycache__
 # Byte-compiled / optimized / DLL files
 __pycache__/
