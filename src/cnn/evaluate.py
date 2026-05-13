@@ -1,10 +1,11 @@
+import json
+import os
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from sklearn.metrics import f1_score, classification_report
 from .layers import Conv2D, LocallyConnected2D, Dense
 from .forward_propagation import ForwardPropagation
-import os
 
 
 class ModelEvaluator:
@@ -134,22 +135,34 @@ class ModelEvaluator:
         
         return results
     
-    def compare_shared_vs_non_shared(self, test_ds):
-        conv2d_model_path = os.path.join(self.trained_models_dir, 'conv2d_layers_3_pool_max.h5')
-        lc_model_path = os.path.join(self.trained_models_dir, 'locally_connected2d_baseline.h5')
-        
+    def get_best_conv2d_model_name(self):
+        results_path = os.path.join(self.trained_models_dir, 'training_results.json')
+        with open(results_path) as f:
+            results = json.load(f)
+        conv2d_results = results.get('conv2d', {})
+        return max(conv2d_results, key=lambda k: conv2d_results[k]['macro_f1'])
+
+    def compare_shared_vs_non_shared(self, test_ds, best_model_name=None):
+        if best_model_name is None:
+            best_model_name = self.get_best_conv2d_model_name()
+
+        lc_model_name = 'locally_connected2d_best'
         results = {}
-        
-        if os.path.exists(conv2d_model_path):
-            conv2d_result = self.evaluate_model_pair('conv2d_layers_3_pool_max', test_ds)
+
+        conv2d_path = os.path.join(self.trained_models_dir, f'{best_model_name}.h5')
+        if os.path.exists(conv2d_path):
+            conv2d_result = self.evaluate_model_pair(best_model_name, test_ds)
             results['conv2d'] = conv2d_result
-            print(f"Conv2D (shared): F1={conv2d_result['keras_metrics']['macro_f1']:.4f}, "
+            print(f"Conv2D (shared) [{best_model_name}]: "
+                  f"F1={conv2d_result['keras_metrics']['macro_f1']:.4f}, "
                   f"Params={conv2d_result['parameter_count']}")
-        
-        if os.path.exists(lc_model_path):
-            lc_result = self.evaluate_model_pair('locally_connected2d_baseline', test_ds)
+
+        lc_path = os.path.join(self.trained_models_dir, f'{lc_model_name}.h5')
+        if os.path.exists(lc_path):
+            lc_result = self.evaluate_model_pair(lc_model_name, test_ds)
             results['locally_connected2d'] = lc_result
-            print(f"LocallyConnected2D (non-shared): F1={lc_result['keras_metrics']['macro_f1']:.4f}, "
+            print(f"LocallyConnected2D (non-shared): "
+                  f"F1={lc_result['keras_metrics']['macro_f1']:.4f}, "
                   f"Params={lc_result['parameter_count']}")
-        
+
         return results
