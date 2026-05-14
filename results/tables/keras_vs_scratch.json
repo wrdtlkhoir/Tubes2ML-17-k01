@@ -1,0 +1,26 @@
+[
+  {
+    "model": "RNN-Scratch (rnn_2layer_512)",
+    "bleu4": 0.0048,
+    "meteor": 0.148,
+    "avg_time": 0.0148
+  },
+  {
+    "model": "RNN-Keras   (rnn_2layer_512)",
+    "bleu4": 0.0048,
+    "meteor": 0.148,
+    "avg_time": 0.5746
+  },
+  {
+    "model": "LSTM-Scratch (lstm_3layer_512)",
+    "bleu4": 0.0028,
+    "meteor": 0.1487,
+    "avg_time": 0.0601
+  },
+  {
+    "model": "LSTM-Keras   (lstm_3layer_512)",
+    "bleu4": 0.0028,
+    "meteor": 0.1487,
+    "avg_time": 0.6691
+  }
+]
