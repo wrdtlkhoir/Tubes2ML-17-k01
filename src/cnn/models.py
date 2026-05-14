@@ -7,7 +7,7 @@ class LocallyConnected2D(layers.Layer):
     def __init__(self, filters, kernel_size, padding='valid', activation=None, **kwargs):
         super().__init__(**kwargs)
         self.filters = filters
-        self.kernel_size = kernel_size if isinstance(kernel_size, tuple) else (kernel_size, kernel_size)
+        self.kernel_size = tuple(kernel_size) if isinstance(kernel_size, (tuple, list)) else (kernel_size, kernel_size)
         self.padding = padding.lower()
         self.activation = keras.activations.get(activation)
 
