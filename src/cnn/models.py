@@ -79,6 +79,8 @@ def build_conv2d_model(input_shape=(224, 224, 3), num_classes=6, num_conv_layers
 def build_locally_connected_model(input_shape=(224, 224, 3),num_classes=6, num_lc_layers=3, filters_list=(32, 64, 128), kernel_sizes_list=(3, 3, 3), pooling_type='max'):
     model = keras.Sequential()
     model.add(layers.Input(shape=input_shape))
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
+    model.add(layers.MaxPooling2D(pool_size=(2, 2)))
     for i in range(num_lc_layers):
         model.add(LocallyConnected2D(
             filters=filters_list[i],
