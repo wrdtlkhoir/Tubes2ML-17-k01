@@ -47,7 +47,7 @@ def extract_features(image_paths: List[str], output_path: str, model_name: str =
         batch_images = load_batch(batch_paths, target_size)
         
         batch_features = base_model.predict(batch_images, verbose=0)
-        batch_features = batch_features.reshape(batch_features.shape[0], -1)
+        batch_features = batch_features.mean(axis=(1, 2))  # global average pool → (N, 2048)
         
         for path, feature in zip(batch_paths, batch_features):
             filename = os.path.basename(path)
