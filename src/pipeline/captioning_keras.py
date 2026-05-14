@@ -103,3 +103,8 @@ class ImageCaptionerKeras:
 
     def predict_batch(self, image_paths: list, max_len: int = 20) -> list:
         return [self.predict(p, max_len) for p in image_paths]
+
+    def predict_batch_from_features(
+        self, features: np.ndarray, max_len: int = 20
+    ) -> list:
+        return [self._caption_from_feature(features[i], max_len) for i in range(len(features))]
