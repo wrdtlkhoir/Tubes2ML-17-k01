@@ -71,11 +71,11 @@ class ImageCaptionerKeras:
 
         feat = feature[np.newaxis, :]  # (1, feature_dim)
 
-        token = self._vocab["<start>"]
+        tokens = [self._vocab["<start>"]]
         caption = []
 
         for _ in range(max_len):
-            word_seq = np.array([[token]])  # (1, 1), single step
+            word_seq = np.array([tokens])  # (1, t) — full sequence so far
 
             probs = self._decoder.predict(
                 {"cnn_input": feat, "word_input": word_seq}, verbose=0
@@ -86,7 +86,7 @@ class ImageCaptionerKeras:
             if word == "<end>":
                 break
             caption.append(word)
-            token = next_token
+            tokens.append(next_token)
 
         return " ".join(caption)
 
