@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from sklearn.metrics import f1_score, classification_report
-from .layers import Conv2D, LocallyConnected2D, Dense
+from .models import LocallyConnected2D as KerasLocallyConnected2D
 from .forward_propagation import ForwardPropagation
 
 
@@ -94,7 +94,11 @@ class ModelEvaluator:
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model not found: {model_path}")
         
-        keras_model = keras.models.load_model(model_path)
+        keras_model = keras.models.load_model(
+            model_path,
+            custom_objects={"LocallyConnected2D": KerasLocallyConnected2D},
+            compile=False,
+        )
         
         y_true_keras, y_pred_keras, y_pred_proba_keras = self.inference_keras(keras_model, test_ds)
         metrics_keras = self.calculate_metrics(y_true_keras, y_pred_keras)
