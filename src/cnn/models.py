@@ -13,6 +13,7 @@ class LocallyConnected2D(layers.Layer):
             ks = list(kernel_size)
             self.kernel_size = (int(ks[0]), int(ks[1]))
         self.padding = padding.lower()
+        self.strides = (1, 1)
         self.activation = keras.activations.get(activation)
 
     def build(self, input_shape):
@@ -57,6 +58,7 @@ class LocallyConnected2D(layers.Layer):
             'kernel_size': self.kernel_size,
             'padding': self.padding,
             'activation': keras.activations.serialize(self.activation),
+            'strides': self.strides,
         })
         return config
 
