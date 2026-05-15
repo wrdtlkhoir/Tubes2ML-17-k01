@@ -1,0 +1,38 @@
+[
+  {
+    "layer": "SimpleRNN",
+    "param": "W_xh",
+    "rel_err": 1e-08,
+    "status": "PASS"
+  },
+  {
+    "layer": "SimpleRNN",
+    "param": "W_hh",
+    "rel_err": 1e-08,
+    "status": "PASS"
+  },
+  {
+    "layer": "SimpleRNN",
+    "param": "b_h",
+    "rel_err": 0.0,
+    "status": "PASS"
+  },
+  {
+    "layer": "LSTM",
+    "param": "W_x",
+    "rel_err": 2e-08,
+    "status": "PASS"
+  },
+  {
+    "layer": "LSTM",
+    "param": "W_h",
+    "rel_err": 0.0,
+    "status": "PASS"
+  },
+  {
+    "layer": "LSTM",
+    "param": "b",
+    "rel_err": 0.0,
+    "status": "PASS"
+  }
+]

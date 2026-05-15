@@ -1,0 +1,218 @@
+[
+  {
+    "model": "rnn_preinject_L1_H128",
+    "bleu4": 0.0042,
+    "time_s": 37.03,
+    "rnn_type": "rnn",
+    "injection": "pre",
+    "num_layers": 1,
+    "hidden": 128
+  },
+  {
+    "model": "rnn_initinject_L1_H128",
+    "bleu4": 0.1394,
+    "time_s": 19.21,
+    "rnn_type": "rnn",
+    "injection": "init",
+    "num_layers": 1,
+    "hidden": 128
+  },
+  {
+    "model": "rnn_preinject_L1_H512",
+    "bleu4": 0.0041,
+    "time_s": 29.93,
+    "rnn_type": "rnn",
+    "injection": "pre",
+    "num_layers": 1,
+    "hidden": 512
+  },
+  {
+    "model": "rnn_initinject_L1_H512",
+    "bleu4": 0.1345,
+    "time_s": 34.46,
+    "rnn_type": "rnn",
+    "injection": "init",
+    "num_layers": 1,
+    "hidden": 512
+  },
+  {
+    "model": "rnn_preinject_L2_H128",
+    "bleu4": 0.0045,
+    "time_s": 17.48,
+    "rnn_type": "rnn",
+    "injection": "pre",
+    "num_layers": 2,
+    "hidden": 128
+  },
+  {
+    "model": "rnn_initinject_L2_H128",
+    "bleu4": 0.111,
+    "time_s": 38.84,
+    "rnn_type": "rnn",
+    "injection": "init",
+    "num_layers": 2,
+    "hidden": 128
+  },
+  {
+    "model": "rnn_preinject_L2_H512",
+    "bleu4": 0.0051,
+    "time_s": 21.73,
+    "rnn_type": "rnn",
+    "injection": "pre",
+    "num_layers": 2,
+    "hidden": 512
+  },
+  {
+    "model": "rnn_initinject_L2_H512",
+    "bleu4": 0.1434,
+    "time_s": 31.14,
+    "rnn_type": "rnn",
+    "injection": "init",
+    "num_layers": 2,
+    "hidden": 512
+  },
+  {
+    "model": "rnn_preinject_L3_H128",
+    "bleu4": 0.0034,
+    "time_s": 22.31,
+    "rnn_type": "rnn",
+    "injection": "pre",
+    "num_layers": 3,
+    "hidden": 128
+  },
+  {
+    "model": "rnn_initinject_L3_H128",
+    "bleu4": 0.1325,
+    "time_s": 30.01,
+    "rnn_type": "rnn",
+    "injection": "init",
+    "num_layers": 3,
+    "hidden": 128
+  },
+  {
+    "model": "rnn_preinject_L3_H512",
+    "bleu4": 0.0032,
+    "time_s": 24.19,
+    "rnn_type": "rnn",
+    "injection": "pre",
+    "num_layers": 3,
+    "hidden": 512
+  },
+  {
+    "model": "rnn_initinject_L3_H512",
+    "bleu4": 0.1465,
+    "time_s": 33.11,
+    "rnn_type": "rnn",
+    "injection": "init",
+    "num_layers": 3,
+    "hidden": 512
+  },
+  {
+    "model": "lstm_preinject_L1_H128",
+    "bleu4": 0.0029,
+    "time_s": 16.02,
+    "rnn_type": "lstm",
+    "injection": "pre",
+    "num_layers": 1,
+    "hidden": 128
+  },
+  {
+    "model": "lstm_initinject_L1_H128",
+    "bleu4": 0.1176,
+    "time_s": 14.15,
+    "rnn_type": "lstm",
+    "injection": "init",
+    "num_layers": 1,
+    "hidden": 128
+  },
+  {
+    "model": "lstm_preinject_L1_H512",
+    "bleu4": 0.0047,
+    "time_s": 15.7,
+    "rnn_type": "lstm",
+    "injection": "pre",
+    "num_layers": 1,
+    "hidden": 512
+  },
+  {
+    "model": "lstm_initinject_L1_H512",
+    "bleu4": 0.15,
+    "time_s": 12.11,
+    "rnn_type": "lstm",
+    "injection": "init",
+    "num_layers": 1,
+    "hidden": 512
+  },
+  {
+    "model": "lstm_preinject_L2_H128",
+    "bleu4": 0.003,
+    "time_s": 15.76,
+    "rnn_type": "lstm",
+    "injection": "pre",
+    "num_layers": 2,
+    "hidden": 128
+  },
+  {
+    "model": "lstm_initinject_L2_H128",
+    "bleu4": 0.1283,
+    "time_s": 13.78,
+    "rnn_type": "lstm",
+    "injection": "init",
+    "num_layers": 2,
+    "hidden": 128
+  },
+  {
+    "model": "lstm_preinject_L2_H512",
+    "bleu4": 0.0039,
+    "time_s": 16.88,
+    "rnn_type": "lstm",
+    "injection": "pre",
+    "num_layers": 2,
+    "hidden": 512
+  },
+  {
+    "model": "lstm_initinject_L2_H512",
+    "bleu4": 0.1451,
+    "time_s": 16.5,
+    "rnn_type": "lstm",
+    "injection": "init",
+    "num_layers": 2,
+    "hidden": 512
+  },
+  {
+    "model": "lstm_preinject_L3_H128",
+    "bleu4": 0.0038,
+    "time_s": 16.42,
+    "rnn_type": "lstm",
+    "injection": "pre",
+    "num_layers": 3,
+    "hidden": 128
+  },
+  {
+    "model": "lstm_initinject_L3_H128",
+    "bleu4": 0.1381,
+    "time_s": 14.49,
+    "rnn_type": "lstm",
+    "injection": "init",
+    "num_layers": 3,
+    "hidden": 128
+  },
+  {
+    "model": "lstm_preinject_L3_H512",
+    "bleu4": 0.005,
+    "time_s": 18.24,
+    "rnn_type": "lstm",
+    "injection": "pre",
+    "num_layers": 3,
+    "hidden": 512
+  },
+  {
+    "model": "lstm_initinject_L3_H512",
+    "bleu4": 0.1524,
+    "time_s": 13.72,
+    "rnn_type": "lstm",
+    "injection": "init",
+    "num_layers": 3,
+    "hidden": 512
+  }
+]

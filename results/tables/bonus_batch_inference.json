@@ -1,0 +1,27 @@
+[
+  {
+    "batch_size": 1,
+    "total_s": 0.031,
+    "ms_per_image": 30.65
+  },
+  {
+    "batch_size": 8,
+    "total_s": 0.149,
+    "ms_per_image": 18.63
+  },
+  {
+    "batch_size": 32,
+    "total_s": 0.235,
+    "ms_per_image": 7.33
+  },
+  {
+    "batch_size": 64,
+    "total_s": 0.348,
+    "ms_per_image": 5.43
+  },
+  {
+    "batch_size": 1012,
+    "total_s": 3.699,
+    "ms_per_image": 3.65
+  }
+]
