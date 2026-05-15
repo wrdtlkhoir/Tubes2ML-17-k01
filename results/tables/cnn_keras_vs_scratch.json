@@ -1,0 +1,26 @@
+[
+  {
+    "model":"conv2d_L3_F2_K2_Pmax",
+    "type":"Conv2D (shared)",
+    "keras_f1":0.8769,
+    "scratch_f1":0.8769,
+    "keras_acc":0.876,
+    "scratch_acc":0.876,
+    "f1_delta":0.0,
+    "acc_delta":0.0,
+    "preds_match":false,
+    "params":1096582
+  },
+  {
+    "model":"locally_connected2d_best",
+    "type":"LocallyConnected2D (non-shared)",
+    "keras_f1":0.6594,
+    "scratch_f1":0.6594,
+    "keras_acc":0.66,
+    "scratch_acc":0.66,
+    "f1_delta":0.0,
+    "acc_delta":0.0,
+    "preds_match":false,
+    "params":152558086
+  }
+]
