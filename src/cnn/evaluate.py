@@ -64,7 +64,8 @@ class ModelEvaluator:
             
             elif layer_type == 'LocallyConnected2D':
                 kernel, bias = keras_layer.get_weights()
-                fp.add_locally_connected2d(kernel, bias, stride=keras_layer.strides[0], padding=0)
+                fp.add_locally_connected2d(kernel, bias, stride=keras_layer.strides[0], padding=0,
+                                           kH=keras_layer.kh, kW=keras_layer.kw)
             
             elif layer_type == 'MaxPooling2D':
                 fp.add_maxpooling2d(pool_size=keras_layer.pool_size, strides=keras_layer.strides)

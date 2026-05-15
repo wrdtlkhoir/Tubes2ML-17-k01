@@ -14,8 +14,9 @@ class ForwardPropagation:
     def add_conv2d(self, kernel: np.ndarray, bias: np.ndarray, stride: int = 1, padding: int = 0):
         self.layers.append(Conv2D(kernel, bias, stride, padding))
     
-    def add_locally_connected2d(self, kernel: np.ndarray, bias: np.ndarray, stride: int = 1, padding: int = 0):
-        self.layers.append(LocallyConnected2D(kernel, bias, stride, padding))
+    def add_locally_connected2d(self, kernel: np.ndarray, bias: np.ndarray, stride: int = 1, padding: int = 0,
+                                kH: int = None, kW: int = None):
+        self.layers.append(LocallyConnected2D(kernel, bias, stride, padding, kH=kH, kW=kW))
     
     def add_maxpooling2d(self, pool_size: tuple = (2, 2), strides: tuple = None):
         self.layers.append(MaxPooling2D(pool_size, strides))
@@ -70,7 +71,8 @@ def load_keras_model_weights(keras_model, layer_configs: List[Dict[str, Any]]) -
             fp.add_locally_connected2d(
                 kernel, bias,
                 stride=layer.strides[0],
-                padding=0 if layer.padding == 'valid' else 1
+                padding=0 if layer.padding == 'valid' else 1,
+                kH=layer.kh, kW=layer.kw,
             )
         
         elif layer_type == 'maxpooling2d':

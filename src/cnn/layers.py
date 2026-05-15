@@ -39,15 +39,15 @@ class Conv2D:
 
 
 class LocallyConnected2D:
-    def __init__(self, kernel: np.ndarray, bias: np.ndarray, stride: int = 1, padding: int = 0):
-        self.kernel = kernel
-        self.bias = bias
+    def __init__(self, kernel: np.ndarray, bias: np.ndarray, stride: int = 1, padding: int = 0,
+                 kH: int = None, kW: int = None):
+        self.kernel = kernel  # (n_pos, kH*kW*C_in, C_out)
+        self.bias = bias      # (n_pos, C_out)
         self.stride = stride
         self.padding = padding
-        self.out_rows, self.out_cols, self.kH_kW_C_in, self.C_out = kernel.shape
-        
-        self.kH = int(np.sqrt(self.kH_kW_C_in / self.kernel.shape[2]))
-        self.kW = self.kH
+        self.C_out = kernel.shape[-1]
+        self.kH = kH
+        self.kW = kW
     
     def forward(self, x: np.ndarray) -> np.ndarray:
         N, H, W, C = x.shape
