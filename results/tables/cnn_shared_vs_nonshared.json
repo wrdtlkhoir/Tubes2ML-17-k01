@@ -3,7 +3,7 @@
     "model": "conv2d_L3_F2_K2_Pmax",
     "type": "Conv2D (shared)",
     "keras_f1": 0.8769,
-    "scratch_f1": 0.0455,
+    "scratch_f1": 0.8769,
     "params": 1096582,
     "preds_match": false
   },
@@ -11,7 +11,7 @@
     "model": "locally_connected2d_best",
     "type": "LocallyConnected2D (non-shared)",
     "keras_f1": 0.6594,
-    "scratch_f1": 0.2492,
+    "scratch_f1": 0.6594,
     "params": 152558086,
     "preds_match": false
   }
