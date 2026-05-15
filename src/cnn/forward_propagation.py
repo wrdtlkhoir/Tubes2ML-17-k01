@@ -59,11 +59,8 @@ def load_keras_model_weights(keras_model, layer_configs: List[Dict[str, Any]]) -
         if layer_type == 'conv2d':
             layer = keras_model.get_layer(keras_layer_name)
             kernel, bias = layer.get_weights()
-            fp.add_conv2d(
-                kernel, bias,
-                stride=layer.strides[0],
-                padding=0 if layer.padding == 'valid' else 1
-            )
+            padding_val = 0 if layer.padding == 'valid' else layer.kernel_size[0] // 2
+            fp.add_conv2d(kernel, bias, stride=layer.strides[0], padding=padding_val)
         
         elif layer_type == 'locally_connected2d':
             layer = keras_model.get_layer(keras_layer_name)

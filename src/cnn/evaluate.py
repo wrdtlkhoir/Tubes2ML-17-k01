@@ -60,12 +60,24 @@ class ModelEvaluator:
             
             if layer_type == 'Conv2D':
                 kernel, bias = keras_layer.get_weights()
-                fp.add_conv2d(kernel, bias, stride=keras_layer.strides[0], padding=0)
-            
+                padding_val = 0 if keras_layer.padding == 'valid' else keras_layer.kernel_size[0] // 2
+                fp.add_conv2d(kernel, bias, stride=keras_layer.strides[0], padding=padding_val)
+                act_name = keras_layer.activation.__name__
+                if act_name == 'relu':
+                    fp.add_relu()
+                elif act_name == 'softmax':
+                    fp.add_softmax()
+
             elif layer_type == 'LocallyConnected2D':
                 kernel, bias = keras_layer.get_weights()
-                fp.add_locally_connected2d(kernel, bias, stride=keras_layer.strides[0], padding=0,
+                padding_val = 0 if keras_layer.padding == 'valid' else keras_layer.kh // 2
+                fp.add_locally_connected2d(kernel, bias, stride=keras_layer.strides[0], padding=padding_val,
                                            kH=keras_layer.kh, kW=keras_layer.kw)
+                act_name = keras_layer.activation.__name__
+                if act_name == 'relu':
+                    fp.add_relu()
+                elif act_name == 'softmax':
+                    fp.add_softmax()
             
             elif layer_type == 'MaxPooling2D':
                 fp.add_maxpooling2d(pool_size=keras_layer.pool_size, strides=keras_layer.strides)
