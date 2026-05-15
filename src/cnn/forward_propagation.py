@@ -4,7 +4,6 @@ from .layers import (
     Conv2D, LocallyConnected2D, MaxPooling2D, AveragePooling2D,
     GlobalAveragePooling2D, GlobalMaxPooling2D, Flatten, ReLU, Softmax, Dense
 )
-import tensorflow as tf
 
 
 class ForwardPropagation:
