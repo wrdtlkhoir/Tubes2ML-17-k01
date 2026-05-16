@@ -1,178 +1,159 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from typing import List, Optional
+from scipy.ndimage import zoom
+from typing import List, Tuple, Optional, Callable
 
 
 class FeatureMapVisualizer:
     
     @staticmethod
-    def visualize_feature_maps(feature_maps: np.ndarray, 
-                               layer_name: str = "Conv Layer",
-                               max_filters: int = 16) -> None:
-        num_channels = feature_maps.shape[2]
-        num_to_show = min(max_filters, num_channels)
+    def visualize_feature_maps(
+        feature_maps: np.ndarray,
+        layer_name: str = "Conv Layer",
+        max_filters: int = 16,
+        figsize: Tuple = (16, 8)
+    ) -> None:
+        feature_maps = feature_maps.squeeze()
+        num_filters = min(feature_maps.shape[2], max_filters)
         
-        # Hitung grid dimensi
-        grid_size = int(np.ceil(np.sqrt(num_to_show)))
-        
-        fig, axes = plt.subplots(grid_size, grid_size, figsize=(12, 12))
+        fig, axes = plt.subplots(2, max_filters//2, figsize=figsize)
         axes = axes.flatten()
         
-        for i in range(num_to_show):
-            feature_map = feature_maps[:, :, i]
+        for i in range(num_filters):
+            ax = axes[i]
+            feature = feature_maps[:, :, i]
             
-            # Normalize untuk visualization
-            feature_map = (feature_map - feature_map.min()) / (feature_map.max() - feature_map.min() + 1e-8)
-            
-            axes[i].imshow(feature_map, cmap='viridis')
-            axes[i].set_title(f'Filter {i}')
+            im = ax.imshow(feature, cmap='viridis')
+            ax.set_title(f'Filter {i+1}', fontsize=10, fontweight='bold')
+            ax.axis('off')
+            plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+        
+        for i in range(num_filters, len(axes)):
             axes[i].axis('off')
         
-        # Hapus subplot kosong
-        for i in range(num_to_show, len(axes)):
-            axes[i].axis('off')
-        
-        plt.suptitle(f'{layer_name} - Feature Maps (showing {num_to_show}/{num_channels})', 
-                     fontsize=14, fontweight='bold')
+        plt.suptitle(f'{layer_name} - Feature Maps', fontsize=14, fontweight='bold')
         plt.tight_layout()
         plt.show()
     
     @staticmethod
-    def visualize_multiple_layers(feature_maps_list: List[np.ndarray],
-                                  layer_names: List[str],
-                                  filters_per_layer: int = 8) -> None:
+    def visualize_multiple_layers(
+        feature_maps_list: List[np.ndarray],
+        layer_names: List[str],
+        filters_per_layer: int = 4,
+        figsize: Tuple = (16, 6)
+    ) -> None:
         num_layers = len(feature_maps_list)
-        
-        fig, axes = plt.subplots(num_layers, filters_per_layer, 
-                                 figsize=(filters_per_layer*2, num_layers*2))
+        fig, axes = plt.subplots(num_layers, filters_per_layer, figsize=figsize)
         
         if num_layers == 1:
             axes = axes.reshape(1, -1)
         
-        for layer_idx, (feature_maps, layer_name) in enumerate(zip(feature_maps_list, layer_names)):
-            num_filters = feature_maps.shape[2]
+        for layer_idx, (features, name) in enumerate(zip(feature_maps_list, layer_names)):
+            features = features.squeeze()
             
             for filter_idx in range(filters_per_layer):
-                if filter_idx < num_filters:
-                    feature_map = feature_maps[:, :, filter_idx]
-                    # Normalize
-                    feature_map = (feature_map - feature_map.min()) / (feature_map.max() - feature_map.min() + 1e-8)
-                    
-                    axes[layer_idx, filter_idx].imshow(feature_map, cmap='viridis')
-                    axes[layer_idx, filter_idx].set_title(f'{layer_name} F{filter_idx}', fontsize=8)
-                else:
-                    axes[layer_idx, filter_idx].set_title(f'{layer_name} (N/A)', fontsize=8)
+                ax = axes[layer_idx, filter_idx]
+                feature = features[:, :, filter_idx]
                 
-                axes[layer_idx, filter_idx].axis('off')
+                im = ax.imshow(feature, cmap='viridis')
+                ax.set_title(f'{name} F{filter_idx+1}', fontsize=9)
+                ax.axis('off')
         
+        plt.suptitle('Feature Map Progression Across Layers', fontsize=14, fontweight='bold')
         plt.tight_layout()
         plt.show()
 
 
 class GradCAM:
-    def __init__(self, feature_extractor_fn, classifier_fn):
-        self.feature_extractor_fn = feature_extractor_fn
-        self.classifier_fn = classifier_fn
     
-    def compute_gradcam(self, image: np.ndarray, target_class: int) -> np.ndarray:
-        image_batch = image[np.newaxis, :, :, :]
-        feature_maps = self.feature_extractor_fn(image_batch)  # (1, h, w, c)
-        feature_maps = feature_maps[0]  # (h, w, c)
+    def __init__(
+        self,
+        feature_extractor: Callable,
+        classifier: Callable
+    ):
+        self.feature_extractor = feature_extractor
+        self.classifier = classifier
+    
+    def compute_gradcam(
+        self,
+        image: np.ndarray,
+        target_class: int,
+        epsilon: float = 1e-6
+    ) -> np.ndarray:
+        features_batch = self.feature_extractor(image)
         
-        num_channels = feature_maps.shape[2]
-        h, w, c = feature_maps.shape
+        features = np.squeeze(features_batch)
+        if len(features.shape) == 2:
+            features = np.expand_dims(features, axis=-1)
         
+        scores = self.classifier(features_batch.flatten())
+        target_score = scores[target_class]
+        
+        num_channels = features.shape[-1]
         weights = np.zeros(num_channels)
         
-        for channel_idx in range(num_channels):
-            eps = 1e-4
+        for c in range(num_channels):
+            feature_c = features[:, :, c]
+            activation_sum = np.sum(feature_c)
+            weights[c] = activation_sum if activation_sum > epsilon else epsilon
         
-            feature_maps_plus = feature_maps.copy()
-            score_plus = self._get_class_score(feature_maps_plus, target_class)
-            
-            feature_maps_minus = feature_maps.copy()
-            feature_maps_minus[:, :, channel_idx] -= eps
-            score_minus = self._get_class_score(feature_maps_minus, target_class)
-            
-            gradient = (score_plus - score_minus) / eps
-            
-            weights[channel_idx] = np.mean(gradient)
+        weights = weights / (np.sum(weights) + epsilon)
         
-        cam = np.zeros((h, w))
-        for channel_idx in range(num_channels):
-            cam += weights[channel_idx] * feature_maps[:, :, channel_idx]
+        cam = np.zeros((features.shape[0], features.shape[1]))
+        for c in range(num_channels):
+            cam += weights[c] * features[:, :, c]
         
         cam = np.maximum(cam, 0)
+        cam_min = np.min(cam)
+        cam_max = np.max(cam)
         
-        if cam.max() > cam.min():
-            cam = (cam - cam.min()) / (cam.max() - cam.min())
+        if cam_max > cam_min:
+            cam = (cam - cam_min) / (cam_max - cam_min)
         
         return cam
     
-    def _get_class_score(self, feature_maps: np.ndarray, target_class: int) -> float:
+    @staticmethod
+    def overlay_cam_on_image(
+        image: np.ndarray,
+        cam: np.ndarray,
+        alpha: float = 0.5,
+        colormap: str = 'jet'
+    ) -> np.ndarray:
+        cmap = cm.get_cmap(colormap)
         
-        flattened = feature_maps.flatten()
+        if image.shape[2] == 3:
+            if np.max(image) > 1:
+                image = image / 255.0
         
-        scores = self.classifier_fn(flattened)
+        if cam.shape != image.shape[:2]:
+            scale_h = image.shape[0] / cam.shape[0]
+            scale_w = image.shape[1] / cam.shape[1]
+            cam = zoom(cam, (scale_h, scale_w), order=1)
         
-        return scores[target_class]
+        heatmap = cmap(cam)[:, :, :3]
+        overlay = (1 - alpha) * image[:, :, :3] + alpha * heatmap
+        
+        return np.clip(overlay, 0, 1)
     
     @staticmethod
-    def overlay_cam_on_image(image: np.ndarray, cam: np.ndarray, 
-                            alpha: float = 0.5) -> np.ndarray:
-        from scipy.ndimage import zoom
+    def visualize_gradcam(
+        image: np.ndarray,
+        cam: np.ndarray,
+        title: str = "Grad-CAM",
+        figsize: Tuple = (12, 4)
+    ) -> None:
+        fig, axes = plt.subplots(1, 3, figsize=figsize)
         
-        if image.ndim == 3:
-            h_img, w_img = image.shape[:2]
-        else:
-            h_img, w_img = image.shape
-            image = np.stack([image]*3, axis=-1)
-        
-        h_cam, w_cam = cam.shape
-        
-        if (h_cam, w_cam) != (h_img, w_img):
-            scale_h = h_img / h_cam
-            scale_w = w_img / w_cam
-            cam_resized = zoom(cam, (scale_h, scale_w), order=1)
-        else:
-            cam_resized = cam
-        
-        if image.max() > 1:
-            image_norm = image / 255.0
-        else:
-            image_norm = image
-      
-        heatmap = cm.jet(cam_resized)[:, :, :3]
-        
-        overlay = alpha * heatmap + (1 - alpha) * image_norm
-        overlay = np.clip(overlay, 0, 1)
-        
-        return overlay
-    
-    @staticmethod
-    def visualize_gradcam(image: np.ndarray, cam: np.ndarray,
-                         title: str = "Grad-CAM Visualization") -> None:
-        fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-        
-        # Original image
-        if image.ndim == 3 and image.shape[2] == 3:
-            if image.max() > 1:
-                axes[0].imshow(image.astype(np.uint8))
-            else:
-                axes[0].imshow(image)
-        else:
-            axes[0].imshow(image, cmap='gray')
+        axes[0].imshow(image)
         axes[0].set_title('Original Image')
         axes[0].axis('off')
         
-        # Grad-CAM heatmap
-        axes[1].imshow(cam, cmap='jet')
+        im = axes[1].imshow(cam, cmap='jet')
         axes[1].set_title('Grad-CAM Heatmap')
         axes[1].axis('off')
-        cbar1 = plt.colorbar(axes[1].images[0], ax=axes[1])
+        plt.colorbar(im, ax=axes[1])
         
-        # Overlay
         overlay = GradCAM.overlay_cam_on_image(image, cam, alpha=0.5)
         axes[2].imshow(overlay)
         axes[2].set_title('Overlay')
@@ -184,49 +165,93 @@ class GradCAM:
 
 
 class ActivationHeatmap:
+    
     @staticmethod
-    def compute_activation_heatmap(feature_maps: np.ndarray) -> np.ndarray:
-        heatmap = np.mean(feature_maps, axis=2)
-        # Normalize
-        heatmap = (heatmap - heatmap.min()) / (heatmap.max() - heatmap.min() + 1e-8)
+    def compute_activation_heatmap(
+        feature_maps: np.ndarray,
+        method: str = 'mean'
+    ) -> np.ndarray:
+        if method == 'mean':
+            heatmap = np.mean(np.abs(feature_maps), axis=2)
+        elif method == 'max':
+            heatmap = np.max(np.abs(feature_maps), axis=2)
+        elif method == 'l2':
+            heatmap = np.linalg.norm(feature_maps, axis=2)
+        else:
+            heatmap = np.mean(feature_maps, axis=2)
+        
+        heatmap_min = np.min(heatmap)
+        heatmap_max = np.max(heatmap)
+        
+        if heatmap_max > heatmap_min:
+            heatmap = (heatmap - heatmap_min) / (heatmap_max - heatmap_min)
+        
         return heatmap
     
     @staticmethod
-    def visualize_activation_progression(activations_dict: dict,
-                                        image: np.ndarray = None) -> None:
-        num_layers = len(activations_dict)
+    def visualize_heatmap(
+        heatmap: np.ndarray,
+        title: str = "Activation Heatmap",
+        figsize: Tuple = (8, 6)
+    ) -> None:
+        fig, ax = plt.subplots(figsize=figsize)
+        im = ax.imshow(heatmap, cmap='hot')
+        ax.set_title(title, fontsize=14, fontweight='bold')
+        plt.colorbar(im, ax=ax, label='Activation')
+        plt.tight_layout()
+        plt.show()
+
+
+class LayerActivationTracker:
+    
+    def __init__(self):
+        self.activations = {}
+    
+    def register_activation(self, layer_name: str, activation: np.ndarray):
+        self.activations[layer_name] = activation
+    
+    def get_activation(self, layer_name: str) -> np.ndarray:
+        return self.activations.get(layer_name)
+    
+    def clear(self):
+        self.activations.clear()
+    
+    def visualize_progression(
+        self,
+        layer_names: Optional[List[str]] = None,
+        figsize: Tuple = (14, 8)
+    ) -> None:
+        if layer_names is None:
+            layer_names = list(self.activations.keys())
         
-        if image is not None:
-            fig, axes = plt.subplots(1, num_layers + 1, figsize=(3*(num_layers+1), 3))
+        num_layers = len(layer_names)
+        fig, axes = plt.subplots(2, (num_layers + 1) // 2, figsize=figsize)
+        axes = axes.flatten()
+        
+        for idx, layer_name in enumerate(layer_names):
+            ax = axes[idx]
+            activation = self.get_activation(layer_name)
             
-            # Original image
-            if image.ndim == 3 and image.shape[2] == 3:
-                if image.max() > 1:
-                    axes[0].imshow(image.astype(np.uint8))
+            if activation is not None:
+                if len(activation.shape) == 3:
+                    heatmap = ActivationHeatmap.compute_activation_heatmap(activation)
+                    im = ax.imshow(heatmap, cmap='hot')
+                elif len(activation.shape) == 2:
+                    im = ax.imshow(activation, cmap='hot')
                 else:
-                    axes[0].imshow(image)
-            else:
-                axes[0].imshow(image, cmap='gray')
-            axes[0].set_title('Original')
-            axes[0].axis('off')
-            
-            start_idx = 1
-        else:
-            fig, axes = plt.subplots(1, num_layers, figsize=(3*num_layers, 3))
-            if num_layers == 1:
-                axes = np.array([axes])
-            start_idx = 0
+                    ax.text(0.5, 0.5, 'Unsupported shape', ha='center', va='center')
+                    ax.set_xlim(0, 1)
+                    ax.set_ylim(0, 1)
+                    ax.axis('off')
+                    continue
+                
+                ax.set_title(f'{layer_name}', fontsize=11, fontweight='bold')
+                ax.axis('off')
+                plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
         
-        for layer_idx, (layer_name, feature_maps) in enumerate(activations_dict.items()):
-            heatmap = ActivationHeatmap.compute_activation_heatmap(feature_maps)
-            
-            ax = axes[start_idx + layer_idx]
-            im = ax.imshow(heatmap, cmap='hot')
-            ax.set_title(f'{layer_name}')
-            ax.axis('off')
-            plt.colorbar(im, ax=ax)
+        for idx in range(len(layer_names), len(axes)):
+            axes[idx].axis('off')
         
-        plt.suptitle('Activation Progression Through Layers', 
-                     fontsize=14, fontweight='bold')
+        plt.suptitle('Activation Progression Through Network', fontsize=14, fontweight='bold')
         plt.tight_layout()
         plt.show()
