@@ -116,7 +116,6 @@ class SimpleRNNCell:
 
     @classmethod
     def from_keras(cls, keras_layer) -> "SimpleRNNCell":
-        """Load weights from a Keras SimpleRNN layer."""
         W_xh, W_hh, b_h = keras_layer.get_weights()
         return cls(W_xh, W_hh, b_h)
 

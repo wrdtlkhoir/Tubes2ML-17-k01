@@ -164,7 +164,6 @@ class SimpleRNNCaptioner(CaptioningPipeline):
         self.rnn_cells = rnn_cells
 
     def _rnn_init(self, batch_size: int) -> tuple:
-        """State = tuple of h for each layer."""
         return tuple(np.zeros((batch_size, cell.units)) for cell in self.rnn_cells)
 
     def _rnn_step(self, x_t: np.ndarray, state: tuple) -> Tuple[np.ndarray, tuple]:
